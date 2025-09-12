@@ -1,0 +1,103 @@
+openapi: 3.0.3
+info:
+  title: External Registrar API
+  version: 1.0.0
+  description: |
+    Minimal API for registering a DvP trade in an external registry.
+    The worker posts a registration request after on-chain Triggered.
+servers:
+  - url: https://registrar.example.com
+paths:
+  /register:
+    post:
+      summary: Register a trade
+      operationId: registerTrade
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '200':
+          description: Registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Already registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterResponse'
+        '500':
+          description: Registrar processing error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    RegisterRequest:
+      type: object
+      required: [tradeId, seller, buyer, securityId, qty, currencyCode, amount, triggeredAt]
+      properties:
+        tradeId:
+          type: string
+          description: 0x-hex bytes32 from on-chain event
+          pattern: ^0x[0-9a-fA-F]{64}$
+        seller:
+          type: string
+          description: Ethereum address
+          pattern: ^0x[0-9a-fA-F]{40}$
+        buyer:
+          type: string
+          description: Ethereum address
+          pattern: ^0x[0-9a-fA-F]{40}$
+        securityId:
+          type: string
+          description: 0x-hex bytes32 (e.g., keccak256(ISIN))
+          pattern: ^0x[0-9a-fA-F]{64}$
+        qty:
+          type: string
+          description: uint256 as decimal string
+          pattern: ^[0-9]+$
+        currencyCode:
+          type: string
+          description: 0x-hex bytes32 of currency code (e.g., 'EUR')
+          pattern: ^0x[0-9a-fA-F]{64}$
+        amount:
+          type: string
+          description: uint256 as decimal string
+          pattern: ^[0-9]+$
+        triggeredAt:
+          type: integer
+          description: Unix timestamp (seconds)
+    RegisterResponse:
+      type: object
+      required: [externalRegIdHex]
+      properties:
+        externalRegIdHex:
+          type: string
+          description: 0x-hex bytes32 unique registration id
+          pattern: ^0x[0-9a-fA-F]{64}$
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string

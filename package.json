@@ -1,0 +1,17 @@
+{
+  "name": "dvp-monorepo",
+  "private": true,
+  "workspaces": [
+    "offchain",
+    "webui"
+  ],
+  "scripts": {
+    "gen:types": "typechain --target=ethers-v6 --out-dir artifacts/types 'artifacts/abi/*.abi.json'"
+  },
+  "devDependencies": {
+    "@typechain/ethers-v6": "^0.5.1",
+    "ethers": "^6.13.0",
+    "typechain": "^8.3.2",
+    "ts-node": "^10.9.2"
+  }
+}

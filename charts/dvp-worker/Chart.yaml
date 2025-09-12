@@ -1,0 +1,5 @@
+apiVersion: v2
+name: dvp-worker
+version: 0.1.0
+description: Off-chain worker for DvP registrar calls
+appVersion: "0.1.0"

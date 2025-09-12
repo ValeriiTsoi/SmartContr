@@ -1,0 +1,22 @@
+# node
+node_modules
+npm-debug.log*
+
+# foundry
+solidity/out
+solidity/cache
+lib/
+
+# artifacts
+artifacts/
+dist/
+
+# env
+.env
+.env.*
+webui/.env.local
+offchain/.env
+
+# terraform
+terraform/.terraform*
+terraform/terraform.tfstate*

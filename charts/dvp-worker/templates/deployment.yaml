@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "dvp-worker.fullname" . }}
+  labels: { app.kubernetes.io/name: dvp-worker, app.kubernetes.io/instance: {{ .Release.Name }} }
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels: { app.kubernetes.io/name: dvp-worker, app.kubernetes.io/instance: {{ .Release.Name }} }
+  template:
+    metadata:
+      labels: { app.kubernetes.io/name: dvp-worker, app.kubernetes.io/instance: {{ .Release.Name }} }
+    spec:
+      serviceAccountName: {{ include "dvp-worker.serviceAccountName" . }}
+      containers:
+        - name: worker
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: RPC_URL
+              value: {{ quote .Values.env.RPC_URL }}
+            - name: CONTRACT_ADDRESS
+              value: {{ quote .Values.env.CONTRACT_ADDRESS }}
+            - name: REGISTRAR_API_URL
+              value: {{ quote .Values.env.REGISTRAR_API_URL }}
+            - name: START_BLOCK
+              value: {{ quote .Values.env.START_BLOCK }}
+            - name: ORACLE_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "dvp-worker.fullname" . }}
+                  key: ORACLE_PRIVATE_KEY
+            - name: REGISTRAR_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "dvp-worker.fullname" . }}
+                  key: REGISTRAR_API_TOKEN
+          resources: {{- toYaml .Values.resources | nindent 12 }}

@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/buyer_attestation.schema.json",
+  "title": "Buyer Attestation",
+  "type": "object",
+  "required": [
+    "tradeId",
+    "securityId",
+    "qty",
+    "currencyCode",
+    "amount",
+    "expiry",
+    "party",
+    "nonce",
+    "signature"
+  ],
+  "properties": {
+    "tradeId": {
+      "type": "string",
+      "pattern": "^0x[0-9a-fA-F]{64}$"
+    },
+    "securityId": {
+      "type": "string",
+      "pattern": "^0x[0-9a-fA-F]{64}$"
+    },
+    "qty": {
+      "type": "string",
+      "pattern": "^\\d+$"
+    },
+    "currencyCode": {
+      "type": "string",
+      "pattern": "^0x[0-9a-fA-F]{64}$"
+    },
+    "amount": {
+      "type": "string",
+      "pattern": "^\\d+$"
+    },
+    "expiry": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "party": {
+      "type": "integer",
+      "enum": [
+        1
+      ],
+      "description": "1 for buyer"
+    },
+    "nonce": {
+      "type": "string",
+      "pattern": "^\\d+$"
+    },
+    "signature": {
+      "type": "string",
+      "pattern": "^0x[0-9a-fA-F]{130}$"
+    }
+  }
+}

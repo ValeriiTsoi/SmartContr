@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/seller_attestation.schema.json",
+  "title": "Seller Attestation",
+  "type": "object",
+  "required": [
+    "tradeId",
+    "securityId",
+    "qty",
+    "currencyCode",
+    "amount",
+    "expiry",
+    "party",
+    "nonce",
+    "signature"
+  ],
+  "properties": {
+    "tradeId": {
+      "type": "string",
+      "description": "0x-prefixed hex of bytes32",
+      "pattern": "^0x[0-9a-fA-F]{64}$"
+    },
+    "securityId": {
+      "type": "string",
+      "description": "bytes32 identifier",
+      "pattern": "^0x[0-9a-fA-F]{64}$"
+    },
+    "qty": {
+      "type": "string",
+      "pattern": "^\\d+$",
+      "description": "uint256 as decimal string"
+    },
+    "currencyCode": {
+      "type": "string",
+      "description": "bytes32 of currency (e.g., 'EUR')",
+      "pattern": "^0x[0-9a-fA-F]{64}$"
+    },
+    "amount": {
+      "type": "string",
+      "pattern": "^\\d+$",
+      "description": "uint256 as decimal string"
+    },
+    "expiry": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "party": {
+      "type": "integer",
+      "enum": [
+        0
+      ],
+      "description": "0 for seller"
+    },
+    "nonce": {
+      "type": "string",
+      "pattern": "^\\d+$"
+    },
+    "signature": {
+      "type": "string",
+      "description": "0x 65-byte sig",
+      "pattern": "^0x[0-9a-fA-F]{130}$"
+    }
+  }
+}

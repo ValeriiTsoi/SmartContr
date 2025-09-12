@@ -1,0 +1,64 @@
+name: release
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Install OZ deps
+        working-directory: solidity
+        run: |
+          forge --version
+          forge install OpenZeppelin/openzeppelin-contracts@v5.0.2 --no-commit
+
+      - name: Build & Test
+        working-directory: solidity
+        run: |
+          forge build --sizes
+          forge test -vv
+
+      - name: Export ABIs
+        working-directory: solidity
+        run: |
+          mkdir -p ../artifacts/abi
+          find out -name "*.json" -maxdepth 3 -type f -print0 | xargs -0 -I{} bash -c 'jq ".abi" {} > ../artifacts/abi/$(basename {}).abi.json || true'
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install root dev deps (TypeChain)
+        run: |
+          npm ci || true
+          npx --yes typechain --version || npm i -D typechain @typechain/ethers-v6 ethers
+
+      - name: Generate TypeChain types
+        run: |
+          npx typechain --target=ethers-v6 --out-dir artifacts/types 'artifacts/abi/*.abi.json'
+
+      - name: Build release bundle
+        run: |
+          mkdir -p dist
+          tar -czf dist/dvp-pack.tgz             solidity/out             artifacts/abi             artifacts/types             schemas             offchain             charts             terraform             webui             registrar_openapi.yaml             README.md || true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/dvp-pack.tgz
+          generate_release_notes: true

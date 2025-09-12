@@ -1,0 +1,25 @@
+image:
+  repository: ghcr.io/ORG/REPO/dvp-worker
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+resources: {}
+
+env:
+  RPC_URL: ""
+  CONTRACT_ADDRESS: ""
+  REGISTRAR_API_URL: ""
+  START_BLOCK: 0
+
+secretEnv:
+  ORACLE_PRIVATE_KEY: ""
+  REGISTRAR_API_TOKEN: ""
+
+podAnnotations: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
+serviceAccount:
+  create: true
+  name: ""

@@ -1,0 +1,72 @@
+name: ci
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  solidity:
+    name: Solidity (Foundry)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Install OZ deps
+        working-directory: solidity
+        run: |
+          forge --version
+          forge install OpenZeppelin/openzeppelin-contracts@v5.0.2 --no-commit
+
+      - name: Build
+        working-directory: solidity
+        run: forge build --sizes
+
+      - name: Test
+        working-directory: solidity
+        run: forge test -vvv
+
+      - name: Export ABIs
+        working-directory: solidity
+        run: |
+          mkdir -p ../artifacts/abi
+          find out -name "*.json" -maxdepth 3 -type f -print0 | xargs -0 -I{} bash -c 'jq ".abi" {} > ../artifacts/abi/$(basename {}).abi.json || true'
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: solidity-artifacts
+          path: |
+            solidity/out
+            artifacts/abi
+
+  offchain:
+    name: Off-chain Worker (TypeScript)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: offchain/package.json
+
+      - name: Install deps
+        working-directory: offchain
+        run: npm ci
+
+      - name: Typecheck & build
+        working-directory: offchain
+        run: |
+          npx tsc --noEmit
