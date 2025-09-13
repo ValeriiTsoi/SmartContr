@@ -1,0 +1,49 @@
+terraform {
+  required_providers {
+    kubernetes = { source = "hashicorp/kubernetes", version = "~> 2.31" }
+    helm       = { source = "hashicorp/helm",       version = "~> 2.13" }
+  }
+}
+
+provider "kubernetes" { config_path = var.kubeconfig }
+provider "helm"       { kubernetes { config_path = var.kubeconfig } }
+
+resource "kubernetes_namespace" "dvp" {
+  metadata { name = var.namespace }
+}
+
+resource "kubernetes_service_account" "worker" {
+  metadata {
+    name      = "dvp-dvp-worker"
+    namespace = var.namespace
+  }
+}
+
+resource "helm_release" "dvp_worker" {
+  name              = "dvp"
+  namespace         = kubernetes_namespace.dvp.metadata[0].name
+  chart             = "../charts/dvp-worker"
+  create_namespace  = false
+  wait              = true
+  timeout           = 300
+
+  # SA управляет Terraform
+  set { name = "serviceAccount.create", value = "false" }
+  set { name = "serviceAccount.name",   value = "dvp-dvp-worker" }
+
+  # image
+  set { name = "image.repository", value = var.image_repository }
+  set { name = "image.tag",        value = var.image_tag }
+
+  # env
+  set { name = "env.RPC_URL",           value = var.rpc_url }
+  set { name = "env.CONTRACT_ADDRESS",  value = var.contract_address }
+  set { name = "env.REGISTRAR_API_URL", value = var.registrar_api_url }
+  set { name = "env.START_BLOCK",       value = tostring(var.start_block) }
+
+  # secretEnv
+  set_sensitive { name = "secretEnv.ORACLE_PRIVATE_KEY", value = var.oracle_private_key }
+  set_sensitive { name = "secretEnv.REGISTRAR_API_TOKEN", value = var.registrar_api_token }
+
+  depends_on = [kubernetes_namespace.dvp, kubernetes_service_account.worker]
+}

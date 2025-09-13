@@ -1,0 +1,17 @@
+FROM node:20-alpine
+
+WORKDIR /repo
+COPY package.json package-lock.json ./
+COPY offchain/package.json offchain/package.json
+
+# ставим ВСЕ зависимости (включая dev) для сборки
+RUN npm ci --workspaces
+
+WORKDIR /repo/offchain
+COPY offchain/ .
+
+# собираем TypeScript в JS и очищаем dev-зависимости
+RUN npm run build && npm prune --omit=dev
+
+ENV NODE_ENV=production
+CMD ["node","dist/worker.js"]

@@ -5,7 +5,7 @@ variable "kubeconfig" {
 }
 
 variable "namespace" {
-  description = "K8s namespace for the release"
+  description = "Kubernetes namespace for the release"
   type        = string
   default     = "dvp"
 }
@@ -31,7 +31,7 @@ variable "contract_address" {
 }
 
 variable "registrar_api_url" {
-  description = "Registrar API base URL"
+  description = "External registrar API base URL"
   type        = string
 }
 

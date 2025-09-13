@@ -21,14 +21,13 @@ provider "helm" {
   }
 }
 
-# Namespace для релиза
+# Namespace для релиза (создастся, если его нет)
 resource "kubernetes_namespace" "dvp" {
-  metadata {
-    name = var.namespace
-  }
+  metadata { name = var.namespace }
 }
 
-# ServiceAccount, на который ссылается Deployment
+# 🔹 ServiceAccount, на который ссылается деплоймент
+#    Имя должно совпадать с тем, что ожидает Deployment (dvp-dvp-worker)
 resource "kubernetes_service_account" "worker" {
   metadata {
     name      = "dvp-dvp-worker"
@@ -38,14 +37,15 @@ resource "kubernetes_service_account" "worker" {
 
 # Установка Helm-чарта воркера
 resource "helm_release" "dvp_worker" {
-  name             = "dvp"
-  namespace        = kubernetes_namespace.dvp.metadata[0].name
-  chart            = "../charts/dvp-worker"
-  create_namespace = false
-  wait             = true
-  timeout          = 300
+  name              = "dvp"
+  namespace         = kubernetes_namespace.dvp.metadata[0].name
+  chart             = "../charts/dvp-worker"
+  create_namespace  = false
+  timeout           = 300
+  wait              = true
+  dependency_update = false
 
-  # SA создаём Terraform'ом, чарт его НЕ создаёт
+  # ЯВНО укажем имя SA, а создание SA самим чартом отключим (его создаёт Terraform)
   set {
     name  = "serviceAccount.create"
     value = "false"
@@ -65,7 +65,7 @@ resource "helm_release" "dvp_worker" {
     value = var.image_tag
   }
 
-  # env
+  # env (публичные переменные)
   set {
     name  = "env.RPC_URL"
     value = var.rpc_url
@@ -83,7 +83,7 @@ resource "helm_release" "dvp_worker" {
     value = tostring(var.start_block)
   }
 
-  # secretEnv
+  # secretEnv (секреты)
   set_sensitive {
     name  = "secretEnv.ORACLE_PRIVATE_KEY"
     value = var.oracle_private_key
@@ -93,6 +93,7 @@ resource "helm_release" "dvp_worker" {
     value = var.registrar_api_token
   }
 
+  # SA и namespace обязательно должны быть созданы раньше:
   depends_on = [
     kubernetes_namespace.dvp,
     kubernetes_service_account.worker

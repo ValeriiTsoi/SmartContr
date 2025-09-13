@@ -1,10 +1,14 @@
 kubeconfig         = "~/.kube/config"
 namespace          = "dvp"
-image_repository   = "ghcr.io/ORG/REPO/dvp-worker"
-image_tag          = "v0.1.0"
-rpc_url            = "https://..."
-contract_address   = "0x..."
-registrar_api_url  = "https://registrar.example.com"
+
+image_repository   = "dvp-worker"
+image_tag          = "local"
+
+rpc_url            = "http://192.168.1.15:8545"
+contract_address   = "0xYOUR_CONTRACT_ADDRESS"
+registrar_api_url  = "http://192.168.1.15:3000"
 start_block        = 0
-oracle_private_key = "0xabc..."
-registrar_api_token= "s3cr3t"
+
+# Заполни локально в terraform.tfvars, НЕ коммитить!
+# oracle_private_key = "0x..."
+# registrar_api_token = "..."

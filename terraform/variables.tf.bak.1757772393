@@ -1,0 +1,10 @@
+variable "kubeconfig"        { description = "Path to kubeconfig";                   type = string; default = "~/.kube/config" }
+variable "namespace"         { description = "K8s namespace for the release";        type = string; default = "dvp" }
+variable "image_repository"  { description = "Container image repository";           type = string }
+variable "image_tag"         { description = "Container image tag";                  type = string }
+variable "rpc_url"           { description = "Blockchain RPC endpoint";              type = string }
+variable "contract_address"  { description = "Deployed DvP contract address";        type = string }
+variable "registrar_api_url" { description = "Registrar API base URL";               type = string }
+variable "start_block"       { description = "Start block to scan events from";      type = number; default = 0 }
+variable "oracle_private_key"{ description = "Private key for oracle account";       type = string; sensitive = true }
+variable "registrar_api_token"{description = "API token for registrar";              type = string; sensitive = true }

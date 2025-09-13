@@ -1,22 +1,26 @@
-# node
-node_modules
+# Node / TypeScript
+node_modules/
+offchain/dist/
 npm-debug.log*
+yarn-error.log
 
-# foundry
-solidity/out
-solidity/cache
-lib/
+# Foundry / Solidity
+out/
+cache/
 
-# artifacts
-artifacts/
-dist/
+# Terraform
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate*
+*.tfvars
+!terraform.tfvars.example
 
-# env
+# Local env / IDE
 .env
-.env.*
-webui/.env.local
-offchain/.env
+*.log
+.vscode/
+.idea/
 
-# terraform
-terraform/.terraform*
-terraform/terraform.tfstate*
+# OS
+.DS_Store
+Thumbs.db
